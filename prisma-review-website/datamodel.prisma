@@ -7,7 +7,7 @@ type User {
 type Book {
   id: ID! @unique
   title: String!
-  author: User! @relation(name: "BookToUser", onDelete: SET_NULL)
+  author: String!
   isbn: String!
   reviews: [Review!]! @relation(name: "ReviewToBook", onDelete: CASCADE)
 }
