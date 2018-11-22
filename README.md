@@ -7,3 +7,4 @@ An API to learn the advanced concepts of GraphQL.
 - Node
 - GraphQL
 - Prisma
+- Docker
