@@ -1,25 +1,30 @@
 export default {
-    users(parent, args, { db }, info) {
-        if (!args.query) {
-            return db.users;
-        }
+    users(parent, args, { prisma }, info) {
 
-        return db.users.filter((user) => {
-            return user.name.toLowerCase().includes(args.query.toLowerCase());
-        })
-    },
-    posts(parent, args, { db }, info) {
-        if (!args.query) {
-            return db.posts;
-        }
+        return prisma.query.users(null, info);
+        // if (!args.query) {
+        //     return db.users;
+        // }
 
-        return db.posts.filter((post) => {
-            const titleMatch = post.title.toLowerCase().includes(args.query.toLowerCase());
-            const bodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase());
-            return titleMatch || bodyMatch;
-        })
+        // return db.users.filter((user) => {
+        //     return user.name.toLowerCase().includes(args.query.toLowerCase());
+        // })
     },
-    comments(parent, args, { db }, info) {
+    posts(parent, args, { prisma }, info) {
+
+        return prisma.query.posts(null, info);
+
+        // if (!args.query) {
+        //     return db.posts;
+        // }
+
+        // return db.posts.filter((post) => {
+        //     const titleMatch = post.title.toLowerCase().includes(args.query.toLowerCase());
+        //     const bodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase());
+        //     return titleMatch || bodyMatch;
+        // })
+    },
+    comments(parent, args, { db, prisma }, info) {
         return db.comments;
     },
     me() {
