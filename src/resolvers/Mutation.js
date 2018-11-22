@@ -2,77 +2,36 @@ import uuidv4 from 'uuid/v4';
 
 export default {
     async createUser(parent, args, { prisma }, info) {
-        const emailTaken = await prisma.exists.User({ email: args.data.email });
-
-        if (emailTaken) {
-            throw new Error('Email taken.');
-        }
 
         return prisma.mutation.createUser({ data: args.data }, info);
     },
     async deleteUser(parent, args, { prisma }, info) {
-        const userExists = await prisma.exists.User({ id: args.id }, info);
-
-        if (!userExists) {
-            throw new Error('User not found.');
-        }
 
         return prisma.mutation.deleteUser({ where: { id: args.id } }, info);
     },
-    updateUser(parent, args, { db }, info) {
-        const { id, data } = args;
-        const user = db.users.find((user) => user.id === id);
+    async updateUser(parent, args, { prisma }, info) {
 
-        if (!user) {
-            throw new Error('User not found.');
-        }
-
-        if (typeof data.email === 'string') {
-            const emailTaken = db.users.some((user) => user.email === data.email);
-
-            if (emailTaken) {
-                throw new Error('Email in use.');
-            }
-
-            user.email = data.email;
-        }
-
-        if (typeof data.name === 'string') {
-            user.name = data.name;
-        }
-
-        if (typeof data.age !== undefined) {
-            user.age = data.age;
-        }
-
-        return user;
+        return prisma.mutation.updateUser({
+            where: { id: args.id },
+            data: args.data
+        }, info);
     },
-    createPost(parent, args, { db, pubsub }, info) {
-        const userExists = db.users.some((user) => user.id === args.data.author);
+    async createPost(parent, args, { prisma }, info) {
 
-        if (!userExists) {
-            throw new Error('User not found.');
-        }
-
-        const post = {
-            id: uuidv4(),
-            ...args.data
-        };
-
-        db.posts.push(post);
-
-        if (args.data.published) {
-            pubsub.publish('post', {
-                post: {
-                    mutation: 'CREATED',
-                    data: post
-                }
-            });
-        }
-
-        return post;
+        return prisma.mutation.createPost({
+            data: {
+                title: args.data.title,
+                body: args.data.body,
+                published: args.data.published,
+                author: {
+                    connect: {
+                        id: args.data.author
+                    }
+                },
+            } 
+        }, info);
     },
-    deletePost(parent, args, { db, pubsub }, info) {
+    async deletePost(parent, args, { db, pubsub }, info) {
         const postIndex = db.posts.findIndex((post) => post.id === args.id);
 
         if (postIndex === -1) {
@@ -94,7 +53,7 @@ export default {
 
         return post;
     },
-    updatePost(parent, args, { db, pubsub }, info) {
+    async updatePost(parent, args, { db, pubsub }, info) {
         const { id, data } = args;
         const post = db.posts.find((post) => post.id === id);
         const originalPost = { ...post };
@@ -140,7 +99,7 @@ export default {
 
         return post;
     },
-    createComment(parent, args, { db, pubsub }, info) {
+    async createComment(parent, args, { db, pubsub }, info) {
         const userExists = db.users.some((user) => user.id === args.data.author);
         const postExists = db.posts.some((post) => post.id === args.data.post && post.published);
 
@@ -168,7 +127,7 @@ export default {
 
         return comment;
     },
-    deleteComment(parent, args, { db, pubsub }, info) {
+    async deleteComment(parent, args, { db, pubsub }, info) {
         const commentIndex = db.comments.findIndex((comment) => comment.id === args.id);
 
         if (commentIndex === -1) {
@@ -186,7 +145,7 @@ export default {
 
         return deletedComment;
     },
-    updateComment(parent, args, { db, pubsub }, info) {
+    async updateComment(parent, args, { db, pubsub }, info) {
         const { id, data } = args;
         const comment = db.comments.find((comment) => comment.id === id);
 
