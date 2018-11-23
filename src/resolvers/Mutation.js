@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import getUserId from '../utils/getUserId';
 
 export default {
     async createUser(parent, args, { prisma }, info) {
@@ -52,7 +53,8 @@ export default {
             token: jwt.sign({ userId: user.id }, 'supersecrettext')
         };
     },
-    async createPost(parent, args, { prisma }, info) {
+    async createPost(parent, args, { prisma, request }, info) {
+        const userId = getUserId(request);
 
         return prisma.mutation.createPost({
             data: {
@@ -61,7 +63,7 @@ export default {
                 published: args.data.published,
                 author: {
                     connect: {
-                        id: args.data.author
+                        id: userId
                     }
                 },
             } 
