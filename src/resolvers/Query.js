@@ -1,3 +1,5 @@
+import getUserId from '../utils/getUserId';
+
 export default {
     users(parent, args, { prisma }, info) {
         const opArgs = {};
@@ -32,19 +34,34 @@ export default {
     comments(parent, args, { prisma }, info) {
         return prisma.query.comments(null, info);
     },
-    me() {
-        return {
-            id: 'ABC123',
-            name: 'Me',
-            email: 'me@mail.com'
-        };
+    me(parent, args, { prisma, request }, info) {
+        const userId = getUserId(request);
+
+        return prisma.query.user({
+            where: {
+                id: userId
+            }
+        }, info);
     },
-    post() {
-        return {
-            id: 'ABC456',
-            title: 'post 1',
-            body: 'body 1',
-            published: true
-        };
+    async post(parent, args, { prisma, request }, info) {
+        const userId = getUserId(request, false);
+        const posts = await prisma.query.posts({
+            where: {
+                id: args.id,
+                OR: [{
+                    published: true
+                }, {
+                    author: {
+                        id: userId
+                    }
+                }]
+            }
+        }, info);
+
+        if (posts.length === 0) {
+            throw new Error('Post not found.');
+        }
+
+        return posts[0];
     }
 };
