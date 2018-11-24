@@ -104,7 +104,7 @@ export default {
         }
 
         if (isPublished && args.data.published === false) {
-            await prisma.mutation.deleteManyComments({ where: { post: { Id: args.id } } });
+            await prisma.mutation.deleteManyComments({ where: { post: { id: args.id } } });
         }
         
         return prisma.mutation.updatePost({
