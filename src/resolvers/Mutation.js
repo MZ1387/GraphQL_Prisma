@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import getUserId from '../utils/getUserId';
+import generateToken from '../utils/generateToken';
 
 export default {
     async createUser(parent, args, { prisma }, info) {
@@ -19,7 +19,7 @@ export default {
 
         return {
             user,
-            token: jwt.sign({ userId: user.id }, 'supersecrettext')
+            token: generateToken(user.id)
         };
     },
     async deleteUser(parent, args, { prisma }, info) {
@@ -52,7 +52,7 @@ export default {
 
         return {
             user,
-            token: jwt.sign({ userId: user.id }, 'supersecrettext')
+            token: generateToken(user.id)
         };
     },
     async createPost(parent, args, { prisma, request }, info) {
