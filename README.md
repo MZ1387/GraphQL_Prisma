@@ -1,4 +1,4 @@
-# Node_GraphQL-Prisma
+# GraphQL_Prisma
 
 An API to learn the advanced concepts of GraphQL.
 
